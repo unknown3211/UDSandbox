@@ -68,8 +68,9 @@ function Init() {
 function onKeyDown(event: KeyboardEvent) {
   keysPressed[event.key] = true;
   if (event.key === ' ' && !isJumping && gltfModel) {
-    verticalVelocity = 0.3;
+    verticalVelocity = 0.4;
     isJumping = true;
+    socket.emit('jump');
   }
 }
 
@@ -125,6 +126,10 @@ function animate() {
     if (keysPressed['s']) movement.z += cubeSpeed;
     if (keysPressed['a']) movement.x -= cubeSpeed;
     if (keysPressed['d']) movement.x += cubeSpeed;
+    if (keysPressed['c']) {
+      console.log('Position:', gltfModel.position);
+    }
+
 
     gltfModel.position.x += movement.x;
     gltfModel.position.z += movement.z;
