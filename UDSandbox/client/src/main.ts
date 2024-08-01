@@ -54,6 +54,7 @@ function Init() {
   window.addEventListener('mousedown', onMouseDown);
   window.addEventListener('mouseup', onMouseUp);
   window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('contextmenu', (event) => event.preventDefault());
 
   animate();
 
