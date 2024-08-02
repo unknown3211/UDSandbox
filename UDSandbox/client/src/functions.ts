@@ -1,11 +1,26 @@
-import { NotifyUI } from './dev/ui';
+import { NotifyUI, MessageType } from './ui/notifications';
 import { raycaster, mouse, camera, scene } from './main';
+import { CubeClicked } from './scripts/cubetest'
 
-export function Notify(title: string, message: string, duration: number) {
-    NotifyUI(title, message, duration);
+export function Notify(title: string, message: string, duration: number, type: MessageType) {
+    NotifyUI(title, message, duration, type);
 }
 
-export function Interact() {
+export function PlaySound(source: string, volume: number, duration: number) {
+    const sound = new Audio(source);
+    sound.volume = volume;
+    sound.play();
+    setTimeout(() => {
+        sound.pause();
+        sound.currentTime = 0;
+    }, duration);
+}
+
+export function lerp(start: number, end: number, amount: number): number {
+    return (1 - amount) * start + amount * end;
+}
+
+export function Interact() { /* ALWAYS MAKE THIS FUNCTION LAST BECAUSE IT WILL HAVE MULTIPLE INTERACTIONS */
     raycaster.ray.origin.copy(camera.position);
     raycaster.ray.direction.set(mouse.x, mouse.y, 1).unproject(camera).sub(raycaster.ray.origin).normalize();
 
@@ -17,8 +32,4 @@ export function Interact() {
             CubeClicked();
         }
     }
-}
-
-function CubeClicked() {
-    console.log('Clicked on interactive cube!');
 }

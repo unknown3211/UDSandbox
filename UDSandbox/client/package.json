@@ -16,7 +16,9 @@
   },
   "dependencies": {
     "@dimforge/rapier3d": "^0.14.0",
+    "@tweenjs/tween.js": "^25.0.0",
     "cannon-es": "^0.20.0",
+    "cannon-es-debugger": "^1.0.0",
     "dat.gui": "^0.7.9",
     "socket.io-client": "^4.7.5",
     "three": "^0.166.1",

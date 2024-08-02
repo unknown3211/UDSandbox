@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { addGround, addLights, addCube, setupPhysics, world, characterBody, cubeBody } from './dev/map';
+import { setupPhysics, loadMap, world, characterBody, cubeBody, coneBody } from './dev/map';
 import { Interact } from './functions';
+import { InitControls } from './keybinds';
 import { Vector2, Raycaster } from "three";
 import { stats } from './dev/dev';
 import io from 'socket.io-client';
@@ -33,14 +34,11 @@ function Init() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xa0a0a0);
 
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   document.body.appendChild(renderer.domElement);
-
-  addGround();
-  addLights();
 
   directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(0, 10, 10);
@@ -62,7 +60,7 @@ function Init() {
   window.addEventListener('contextmenu', (event) => event.preventDefault());
 
   setupPhysics();
-  addCube();
+  loadMap();
   
   /* Interactions */
   window.addEventListener('mousemove', (event) => {
@@ -74,6 +72,7 @@ function Init() {
     Interact();
   });
 
+  InitControls();
   animate();
 
   socket.on('currentPlayers', (currentPlayers) => {
@@ -241,6 +240,12 @@ function animate() {
   if (cube) {
     cube.position.copy(cubeBody.position as any);
     cube.quaternion.copy(cubeBody.quaternion as any);
+  }
+
+  const cone = scene.children.find((child) => child instanceof THREE.Mesh && child.geometry instanceof THREE.ConeGeometry);
+  if (cone) {
+    cone.position.copy(coneBody.position as any);
+    cone.quaternion.copy(coneBody.quaternion as any);
   }
 
   stats.update();
