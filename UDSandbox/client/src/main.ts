@@ -1,16 +1,19 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { addGround, addLights } from './dev/map';
+import { addGround, addLights, addCube, setupPhysics, world, characterBody, cubeBody } from './dev/map';
+import { Interact } from './functions';
+import { Vector2, Raycaster } from "three";
 import { stats } from './dev/dev';
 import io from 'socket.io-client';
 
 export var scene: THREE.Scene;
-let camera: THREE.PerspectiveCamera;
+export var camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
-let gltfModel: THREE.Group | null = null;
+export var gltfModel: THREE.Group | null = null;
 const cubeSpeed = 0.03;
 const keysPressed: { [key: string]: boolean } = {};
 const gravity = -0.02;
+const rotationSpeed = 0.005;
 let verticalVelocity = 0;
 let isJumping = false;
 
@@ -19,10 +22,12 @@ const players: { [id: string]: THREE.Group } = {};
 
 let isRightMouseDown = false;
 let previousMouseX = 0;
-let previousMouseY = 0;
 let cameraDistance = 10;
 
 let directionalLight: THREE.DirectionalLight;
+
+export const raycaster = new Raycaster();
+export const mouse = new Vector2();
 
 function Init() {
   scene = new THREE.Scene();
@@ -56,6 +61,19 @@ function Init() {
   window.addEventListener('mousemove', onMouseMove);
   window.addEventListener('contextmenu', (event) => event.preventDefault());
 
+  setupPhysics();
+  addCube();
+  
+  /* Interactions */
+  window.addEventListener('mousemove', (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  window.addEventListener('click', () => {
+    Interact();
+  });
+
   animate();
 
   socket.on('currentPlayers', (currentPlayers) => {
@@ -88,7 +106,7 @@ function Init() {
 
 function onKeyDown(event: KeyboardEvent) {
   keysPressed[event.key.toLowerCase()] = true;
-  if (event.key === ' ' && !isJumping && gltfModel) {
+  if (event.key === ' ' && !isJumping) {
     verticalVelocity = 0.4;
     isJumping = true;
     socket.emit('jump');
@@ -103,7 +121,6 @@ function onMouseDown(event: MouseEvent) {
   if (event.button === 2) {
     isRightMouseDown = true;
     previousMouseX = event.clientX;
-    previousMouseY = event.clientY;
   }
 }
 
@@ -116,15 +133,12 @@ function onMouseUp(event: MouseEvent) {
 function onMouseMove(event: MouseEvent) {
   if (isRightMouseDown && gltfModel) {
     const deltaX = event.clientX - previousMouseX;
-    const deltaY = event.clientY - previousMouseY;
 
-    const rotationSpeed = 0.005;
     gltfModel.rotation.y += deltaX * rotationSpeed;
     camera.position.x = gltfModel.position.x + cameraDistance * Math.sin(gltfModel.rotation.y);
     camera.position.z = gltfModel.position.z + cameraDistance * Math.cos(gltfModel.rotation.y);
 
     previousMouseX = event.clientX;
-    previousMouseY = event.clientY;
 
     directionalLight.position.set(
       gltfModel.position.x + 10 * Math.sin(gltfModel.rotation.y + Math.PI / 4),
@@ -178,6 +192,10 @@ function addOtherPlayer(id: string, position: { x: number, y: number, z: number 
 function animate() {
   requestAnimationFrame(animate);
 
+  const deltaTime = 1 / 60;
+
+  world.step(deltaTime);
+
   if (gltfModel) {
     const movement = new THREE.Vector3();
 
@@ -200,23 +218,31 @@ function animate() {
 
     const finalMovement = forwardMovement.add(rightMovement);
 
-    if (movement.length() > 0) {
-      gltfModel.position.add(finalMovement);
-    }
+    characterBody.position.x += finalMovement.x;
+    characterBody.position.z += finalMovement.z;
 
     if (isJumping) {
       verticalVelocity += gravity;
-      gltfModel.position.y += verticalVelocity;
+      characterBody.position.y += verticalVelocity;
 
-      if (gltfModel.position.y <= 0.5) {
-        gltfModel.position.y = 0.5;
+      if (characterBody.position.y <= 0.5) {
+        characterBody.position.y = 0.5;
         isJumping = false;
         verticalVelocity = 0;
       }
     }
 
+    gltfModel.position.copy(characterBody.position as any);
+
     socket.emit('move', { x: finalMovement.x, y: 0, z: finalMovement.z });
   }
+
+  const cube = scene.children.find((child) => child instanceof THREE.Mesh && child.geometry instanceof THREE.BoxGeometry);
+  if (cube) {
+    cube.position.copy(cubeBody.position as any);
+    cube.quaternion.copy(cubeBody.quaternion as any);
+  }
+
   stats.update();
   updateCameraPosition();
   renderer.render(scene, camera);

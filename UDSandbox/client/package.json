@@ -9,13 +9,18 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/dat.gui": "^0.7.13",
     "@types/three": "^0.166.0",
     "typescript": "^5.2.2",
     "vite": "^5.3.3"
   },
   "dependencies": {
+    "@dimforge/rapier3d": "^0.14.0",
+    "cannon-es": "^0.20.0",
+    "dat.gui": "^0.7.9",
     "socket.io-client": "^4.7.5",
     "three": "^0.166.1",
-    "three-fbx-loader": "^1.0.3"
+    "three-fbx-loader": "^1.0.3",
+    "vite-plugin-wasm": "^3.3.0"
   }
 }
