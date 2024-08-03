@@ -1,3 +1,4 @@
+import { Delay } from "../main/functions";
 let isOpen = false;
 let notify: HTMLDivElement | null = null;
 
@@ -42,18 +43,18 @@ export function NotifyUI(title: string, message: string, duration: number, type:
 
         document.body.appendChild(notify);
 
-        setTimeout(() => {
+        Delay(duration).then(() => {
             if (notify) {
                 notify.style.opacity = '0';
-                setTimeout(() => {
+                Delay(500).then(() => {
                     if (notify) {
                         document.body.removeChild(notify);
                         notify = null;
                         isOpen = false;
                     }
-                }, 500);
+                });
             }
-        }, duration);
+        });
     } else {
         if (notify) {
             document.body.removeChild(notify);

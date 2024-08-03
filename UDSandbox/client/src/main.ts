@@ -1,16 +1,17 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { setupPhysics, loadMap, world, characterBody, cubeBody, coneBody } from './dev/map';
-import { Interact } from './functions';
-import { InitControls } from './keybinds';
+import { Interact } from './main/functions';
+import { InitControls } from './main/keybinds';
 import { Vector2, Raycaster } from "three";
-import { stats } from './dev/dev';
+import { stats, DevGUI, pistolParams } from './dev/dev';
 import io from 'socket.io-client';
 
 export var scene: THREE.Scene;
 export var camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
 export var gltfModel: THREE.Group | null = null;
+export var pistol: THREE.Mesh;
 const cubeSpeed = 0.03;
 const keysPressed: { [key: string]: boolean } = {};
 const gravity = -0.02;
@@ -160,6 +161,15 @@ function loadGLTFModel(position: { x: number, y: number, z: number }) {
       gltfModel.scale.set(scale, scale, scale);
       gltfModel.castShadow = true;
       scene.add(gltfModel);
+
+      // Pistol
+      const cubeGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+      const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+      pistol = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      pistol.position.set(0.5, 1, 0);
+      pistol.visible = pistolParams.visible;
+      gltfModel.add(pistol);
+      DevGUI();
     },
     undefined,
     (error) => {
@@ -253,7 +263,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-function updateCameraPosition() {
+export function updateCameraPosition() {
   if (gltfModel) {
     camera.position.set(
       gltfModel.position.x + cameraDistance * Math.sin(gltfModel.rotation.y),

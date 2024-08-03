@@ -1,5 +1,6 @@
-import { camera } from './main';
+import { camera } from '../main';
 import { lerp } from './functions';
+import { InventoryUI } from '../scripts/inventory/inventory';
 
 const keysPressed: { [key: string]: boolean } = {};
 
@@ -7,6 +8,7 @@ export function InitControls() {
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     updateCameraFOV();
+    checkInventoryKey();
 }
 
 function onKeyDown(event: KeyboardEvent) {
@@ -17,8 +19,18 @@ function onKeyUp(event: KeyboardEvent) {
     keysPressed[event.key.toLowerCase()] = false;
 }
 
+function OpenInventory() {
+    if (keysPressed['i']) {
+        InventoryUI();
+    }
+}
 
-// Third person camera - First person camera
+function checkInventoryKey() {
+    requestAnimationFrame(checkInventoryKey);
+    OpenInventory();
+}
+
+// Third person camera - First person camera (Not Done)
 let FP = false;
 let targetFOV = 50;
 

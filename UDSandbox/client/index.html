@@ -4,14 +4,28 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/udlogo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/style.css">
     <title>UD Sandbox</title>
-    <style>
-      body { margin: 0; }
-      canvas { display: block; }
-    </style>
   </head>
   <body>
+    <div id="auth">
+      <div class="form-container" id="login-form">
+        <h2>Login</h2>
+        <input type="text" id="login-username" placeholder="Username" required />
+        <input type="password" id="login-password" placeholder="Password" required />
+        <button onclick="login()">Login</button>
+        <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+      </div>
+      <div class="form-container" id="register-form" style="display:none;">
+        <h2>Register</h2>
+        <input type="text" id="register-username" placeholder="Username" required />
+        <input type="password" id="register-password" placeholder="Password" required />
+        <button onclick="register()">Register</button>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+      </div>
+    </div>
     <div id="app"></div>
+    <script src="./login.js"></script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

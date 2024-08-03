@@ -1,6 +1,6 @@
-import { NotifyUI, MessageType } from './ui/notifications';
-import { raycaster, mouse, camera, scene } from './main';
-import { CubeClicked } from './scripts/cubetest'
+import { NotifyUI, MessageType } from '../ui/notifications';
+import { raycaster, mouse, camera, scene } from '../main';
+import { CubeClicked } from '../scripts/cubetest'
 
 export function Notify(title: string, message: string, duration: number, type: MessageType) {
     NotifyUI(title, message, duration, type);
@@ -10,14 +10,18 @@ export function PlaySound(source: string, volume: number, duration: number) {
     const sound = new Audio(source);
     sound.volume = volume;
     sound.play();
-    setTimeout(() => {
+    Delay(duration).then(() => {
         sound.pause();
         sound.currentTime = 0;
-    }, duration);
+    });
 }
 
 export function lerp(start: number, end: number, amount: number): number {
     return (1 - amount) * start + amount * end;
+}
+
+export function Delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export function Interact() { /* ALWAYS MAKE THIS FUNCTION LAST BECAUSE IT WILL HAVE MULTIPLE INTERACTIONS */

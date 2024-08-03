@@ -77,7 +77,6 @@ export function loadMap() {
     addCone();
 }
 
-
 function addGround() {
     const geometry = new THREE.PlaneGeometry(10, 10);
     const material = new THREE.MeshPhongMaterial({
@@ -122,6 +121,7 @@ function addCone() {
     const cone = new THREE.Mesh(coneGeometry, coneMaterial);
     cone.position.set(-3, 1, 0);
     cone.castShadow = true;
+    cone.name = 'interactiveCone';
     scene.add(cone);
 
     const coneShape = new CANNON.Cylinder(0, 1, 2, 50);
