@@ -6,3 +6,9 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE inventory (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    quantity INT NOT NULL
+);

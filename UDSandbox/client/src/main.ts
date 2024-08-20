@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { setupPhysics, loadMap, world, characterBody, cubeBody, coneBody } from './dev/map';
+import { setupPhysics, loadMap, world, characterBody, cubeBody } from './dev/map';
 import { Interact } from './main/functions';
 import { InitControls } from './main/keybinds';
 import { Vector2, Raycaster } from "three";
-import { stats, DevGUI, pistolParams } from './dev/dev';
+import { stats, pistolParams } from './dev/dev';
 import io from 'socket.io-client';
 
 export var scene: THREE.Scene;
@@ -21,6 +21,7 @@ let isJumping = false;
 
 const socket = io('http://localhost:3000');
 const players: { [id: string]: THREE.Group } = {};
+export var currentUserId: number | null = null;
 
 let isRightMouseDown = false;
 let previousMouseX = 0;
@@ -104,6 +105,11 @@ function Init() {
   });
 }
 
+socket.on('setUserID', (userId: number) => {
+  console.log('Logged in with user ID:', userId);
+  currentUserId = userId;
+})
+
 function onKeyDown(event: KeyboardEvent) {
   keysPressed[event.key.toLowerCase()] = true;
   if (event.key === ' ' && !isJumping) {
@@ -169,7 +175,6 @@ function loadGLTFModel(position: { x: number, y: number, z: number }) {
       pistol.position.set(0.5, 1, 0);
       pistol.visible = pistolParams.visible;
       gltfModel.add(pistol);
-      DevGUI();
     },
     undefined,
     (error) => {
@@ -212,7 +217,7 @@ function animate() {
     if (keysPressed['w']) movement.z += cubeSpeed;
     if (keysPressed['d']) movement.x -= cubeSpeed;
     if (keysPressed['a']) movement.x += cubeSpeed;
-
+  
     const cameraDirection = new THREE.Vector3();
     camera.getWorldDirection(cameraDirection);
     cameraDirection.y = 0;
@@ -250,12 +255,6 @@ function animate() {
   if (cube) {
     cube.position.copy(cubeBody.position as any);
     cube.quaternion.copy(cubeBody.quaternion as any);
-  }
-
-  const cone = scene.children.find((child) => child instanceof THREE.Mesh && child.geometry instanceof THREE.ConeGeometry);
-  if (cone) {
-    cone.position.copy(coneBody.position as any);
-    cone.quaternion.copy(coneBody.quaternion as any);
   }
 
   stats.update();

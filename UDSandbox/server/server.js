@@ -66,8 +66,48 @@ app.post('/login', (req, res) => {
         if (results.length === 0 || !(await bcrypt.compare(password, results[0].password))) {
             return res.status(401).send('Invalid credentials');
         }
+        const userId = results[0].id;
+        res.status(200).json({ userId });
+        io.emit('setUserID', userId);
+        console.log('Login Successful for user:', userId);
+    });
+});
 
-        res.status(200).send('Login successful');
+app.get('/inventory/:userId', (req, res) => {
+    const userId = req.params.userId;
+    console.log(`Fetching inventory for userId: ${userId}`);
+
+    db.query('SELECT item_id, quantity FROM inventory WHERE id = ?', [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching inventory:', err);
+            return res.status(500).send('Server error');
+        }
+
+        res.status(200).json(results);
+    });
+});
+
+app.post('/inventory/add', (req, res) => {
+    const { userId, itemId, quantity } = req.body;
+
+    db.query('INSERT INTO inventory (id, item_id, quantity) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)', [userId, itemId, quantity], (err) => {
+        if (err) {
+            console.error('Error adding item to inventory:', err);
+            return res.status(500).send('Server error');
+        }
+        res.status(200).send('Item added to inventory');
+    });
+});
+
+app.post('/inventory/remove', (req, res) => {
+    const { userId, itemId, quantity } = req.body;
+
+    db.query('UPDATE inventory SET quantity = quantity - ? WHERE id = ? AND item_id = ?', [quantity, userId, itemId], (err) => {
+        if (err) {
+            console.error('Error removing item from inventory:', err);
+            return res.status(500).send('Server error');
+        }
+        res.status(200).send('Item removed from inventory');
     });
 });
 

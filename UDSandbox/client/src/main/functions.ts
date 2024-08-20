@@ -1,9 +1,15 @@
 import { NotifyUI, MessageType } from '../ui/notifications';
+import { ProgressbarUI } from '../ui/progressbar';
 import { raycaster, mouse, camera, scene } from '../main';
-import { CubeClicked } from '../scripts/cubetest'
+/*import { CubeClicked } from '../scripts/cubetest'*/
+import { MineCopper } from '../scripts/mining/mining';
 
 export function Notify(title: string, message: string, duration: number, type: MessageType) {
     NotifyUI(title, message, duration, type);
+}
+
+export function Progressbar(title: string, message: string, duration: number) {
+    ProgressbarUI(title, message, duration);
 }
 
 export function PlaySound(source: string, volume: number, duration: number) {
@@ -33,7 +39,7 @@ export function Interact() { /* ALWAYS MAKE THIS FUNCTION LAST BECAUSE IT WILL H
     if (intersects.length > 0) {
         const intersectedObject = intersects[0].object;
         if (intersectedObject.name === 'interactiveCube') {
-            CubeClicked();
+            MineCopper();
         }
     }
 }

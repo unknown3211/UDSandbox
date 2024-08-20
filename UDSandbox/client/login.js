@@ -1,3 +1,5 @@
+let currentUserId = null;
+
 document.addEventListener('contextmenu', function (event) {
     event.preventDefault();
 });
@@ -25,11 +27,15 @@ async function login() {
     });
 
     if (response.ok) {
-        document.getElementById('auth').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        alert('Login successful');
-    } else {
-        alert('Login failed');
+        const data = await response.json();
+        if (data.userId) {
+            currentUserId = data.userId;
+            document.getElementById('auth').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            alert('Login successful');
+        } else {
+            alert('Login failed');
+        }
     }
 }
 
